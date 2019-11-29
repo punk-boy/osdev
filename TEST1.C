@@ -50,13 +50,14 @@ void far Task(void *data)
 {
     //setvect(0x08, (void interrupt (*)(void))OSTickISR);
     while (1) {
-        //OSTimeDly(1);
         gotoxy(rand() % 79 + 1, rand() % 25 + 1);
 	    putch(*(char *)data);
-        sleep(1);
+        printf("Task is called!\n");
+        //sleep(1);
         /*if (kbhit()) {
             setvect(0x08, OldTickISR);
             exit(0);
         }*/
+        OSTimeDly(1);
     }
 }

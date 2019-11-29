@@ -100,7 +100,10 @@ void OSInit(void *idle_task_stk, UBYTE maxtasks)
     OSTCBTbl[maxtasks-1].OSTCBNext = (OS_TCB *)0;
     OSTCBFreeList                  = &OSTCBTbl[0];
     OSTaskCreate(OSTaskIdle, (void *)0, idle_task_stk, OS_LO_PRIO);
-    OSTQhead = (OSTQhead + 1) % OS_ALL_TASK; // or we call say : OSTQHead = 0;
+    //OSTQhead = (OSTQhead + 1) % OS_ALL_TASK; // or we call say : OSTQHead = 0;
+    /*
+        this is a bug : repaired in v0.02;
+    */
 }
 /*
 ************************************************************
@@ -124,9 +127,10 @@ static void far OSTaskIdle(void *data)
 void OSStart(void)
 {
 
-    UBYTE x, y, p;
+    UBYTE x, y, p, i, tmp;
 
-    printf("OSStart start\n");
+ 
+    printf("OSStartHighRdy start\n");
 
     /*y            = OSUnMapTbl[OSRdyGrp];
     x            = OSRdyTbl[y];
@@ -135,13 +139,19 @@ void OSStart(void)
     OSTCBHighRdy = OSTCBPrioTbl[p];
     OSTCBCur     = OSTCBHighRdy;*/
 
-    p = OSTaskQueue[OSTQhead];
-    printf("OSTQhead = %d, p = %d*\n", OSTQhead, p);
+    p = OSTaskQueue[(OSTQhead + 1) % OS_ALL_TASK];
+    for(i=OSTQhead+1;i<=OSTQtail;i++)
+    {
+        if(OSTaskQueue[i] < p)
+        {
+            tmp = OSTaskQueue[i];
+            OSTaskQueue[i] = p;
+            p = tmp;
+        }
+    }
+    printf("OSTQhead = %d, p = %d *\n", OSTQhead, p);
     fflush(stdout);
     getchar();
-
-    printf("OSStartHighRdy start\n");
-
     OSTCBHighRdy = OSTCBPrioTbl[p];
     OSTCBCur     = OSTCBHighRdy;
     OSRunning    = 1;
@@ -153,24 +163,33 @@ void OSStart(void)
 *                RUN HIGHEST PRIORITY TASK
 ************************************************************
 */
-/*
+
 void OSSched(void)
 {
     UBYTE x, y, p;
-
+    printf("OSSched start\n");
+    getchar();
 
     OS_ENTER_CRITICAL();
     if (OSLockNesting == 0 && OSIntNesting == 0) {
-        y            = OSUnMapTbl[OSRdyGrp];
+        /*y            = OSUnMapTbl[OSRdyGrp];
         x            = OSRdyTbl[y];
-        p            = (y << 3) + OSUnMapTbl[x];
+        p            = (y << 3) + OSUnMapTbl[x];*/
+
+        p = OSTaskQueue[(OSTQhead + 1) % OS_ALL_TASK];
+        
+
         OSTCBHighRdy = OSTCBPrioTbl[p];
         if (OSTCBHighRdy != OSTCBCur) {
-            OS_TASK_SW();
+            //OS_TASK_SW();
+            OSStartHighRdy();
         }
     }
     OS_EXIT_CRITICAL();
+    printf("OSSeched end\n");
 }
+
+
 /*
 ************************************************************
 *                        ENTER ISR
@@ -211,24 +230,30 @@ void OSIntExit(void)
 *          DELAY TASK 'n' TICKS   (n from 1 to 65535)
 ************************************************************
 */
-/*
+
 void OSTimeDly(UWORD ticks)
 {
     UBYTE p;
-
+    printf("OSTimeDly start\n");
 
     OS_ENTER_CRITICAL();
 
     /*p = OSTCBCur->OSTCBPrio;
     if ((OSRdyTbl[p >> 3] &= ~OSMapTbl[p & 0x07]) == 0) {
         OSRdyGrp &= ~OSMapTbl[p >> 3];
-    }
+    }*/
 
+    OSBQtail = (OSBQtail + 1) % OS_ALL_TASK;
+    OSBlocQueue[OSBQtail] = p;
+
+    OSTQhead = (OSTQhead + 1) % OS_ALL_TASK;
+    p = OSTaskQueue[OSTQhead];
 
 
 
     OSTCBCur->OSTCBDly = ticks;
     OS_EXIT_CRITICAL();
+    printf("OSTimeDly end\n");
     OSSched();
 }
 /*
