@@ -139,16 +139,21 @@ void OSStart(void)
     OSTCBHighRdy = OSTCBPrioTbl[p];
     OSTCBCur     = OSTCBHighRdy;*/
 
-    p = OSTaskQueue[(OSTQhead + 1) % OS_ALL_TASK];
-    for(i=OSTQhead+1;i<=OSTQtail;i++)
+    if(OSTQhead < OSTQtail) // there is a process store in the TaskQueue
     {
-        if(OSTaskQueue[i] < p)
-        {
-            tmp = OSTaskQueue[i];
-            OSTaskQueue[i] = p;
-            p = tmp;
-        }
+        OSTQhead = (OSTQhead + 1) % OS_ALL_TASK;
+        //p = OSTaskQueue[OSTQhead];
     }
+    else // no more process in the TaskQueue
+    {
+        OSTQhead = (OSTQhead + 1) % OS_ALL_TASK;
+        p = 63;
+        OSTQtail = (OSTQtail + 1) % OS_ALL_TASK;
+        OSTaskQueue[OSTQtail] = p;
+    }
+
+
+
     printf("OSTQhead = %d, p = %d *\n", OSTQhead, p);
     fflush(stdout);
     getchar();
@@ -198,9 +203,9 @@ void OSSched(void)
 
 void OSIntEnter(void)
 {
-    /*OS_ENTER_CRITICAL();
+    OS_ENTER_CRITICAL();
     OSIntNesting++;
-    OS_EXIT_CRITICAL();*/
+    OS_EXIT_CRITICAL();
 }
 /*
 ************************************************************
@@ -210,20 +215,20 @@ void OSIntEnter(void)
 
 void OSIntExit(void)
 {
-    /*UBYTE x, y, p;
+    UBYTE x, y, p;
 
 
     OS_ENTER_CRITICAL();
     if (--OSIntNesting == 0 && OSLockNesting == 0) {
-        y            = OSUnMapTbl[OSRdyGrp];
+    /*  y            = OSUnMapTbl[OSRdyGrp];
         x            = OSRdyTbl[y];
         p            = (y << 3) + OSUnMapTbl[x];
-        OSTCBHighRdy = OSTCBPrioTbl[p];
+        OSTCBHighRdy = OSTCBPrioTbl[p];*/
         if (OSTCBHighRdy != OSTCBCur) {
             OSIntCtxSw();
         }
     }
-    OS_EXIT_CRITICAL();*/
+    OS_EXIT_CRITICAL();
 }
 /*
 ************************************************************
@@ -243,14 +248,24 @@ void OSTimeDly(UWORD ticks)
         OSRdyGrp &= ~OSMapTbl[p >> 3];
     }*/
 
+    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // TODO: judge the queue is full, so that we can enqueue
+    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     OSBQtail = (OSBQtail + 1) % OS_ALL_TASK;
     OSBlocQueue[OSBQtail] = p;
 
-    OSTQhead = (OSTQhead + 1) % OS_ALL_TASK;
-    p = OSTaskQueue[OSTQhead];
-
-
-
+    if(OSTQhead < OSTQtail) // there is a process store in the TaskQueue
+    {
+        OSTQhead = (OSTQhead + 1) % OS_ALL_TASK;
+        //p = OSTaskQueue[OSTQhead];
+    }
+    else // no more process in the TaskQueue
+    {
+        OSTQhead = (OSTQhead + 1) % OS_ALL_TASK;
+        p = 63;
+        OSTQtail = (OSTQtail + 1) % OS_ALL_TASK;
+        OSTaskQueue[OSTQtail] = p;
+    }
     OSTCBCur->OSTCBDly = ticks;
     OS_EXIT_CRITICAL();
     printf("OSTimeDly end\n");

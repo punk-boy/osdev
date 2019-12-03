@@ -37,12 +37,12 @@ void main(void)
     printf("OSInit end\n");
     printf("OSTaskCreate start\n");
     OSTaskCreate(Task, (void *)&Data1, (void *)&Stk1[STK_SIZE], 1);
-    printf("OSTaskCreate end\n");
-    getchar();
-    //OSTaskCreate(Task, (void *)&Data2, (void *)&Stk2[STK_SIZE], 2);
+    OSTaskCreate(Task, (void *)&Data2, (void *)&Stk2[STK_SIZE], 2);
     //OSTaskCreate(Task, (void *)&Data3, (void *)&Stk3[STK_SIZE], 3);
     //OSTaskCreate(Task, (void *)&Data4, (void *)&Stk4[STK_SIZE], 4);
     //OSTaskCreate(Task, (void *)&Data5, (void *)&Stk5[STK_SIZE], 5);
+    printf("OSTaskCreate end\n");
+    getchar();
     OSStart();
 }
 

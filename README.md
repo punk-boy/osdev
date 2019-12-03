@@ -25,5 +25,13 @@ Thanks to my OS teacher selfless tutorial, for contact you can email qing_kun@16
 > finished this step, we finished a schedule from a process to another process, so we can call it a simple process switch.
 
 
+## v0.03 update
++ a little improve based on v0.02.
+1. let the idle process no longer store into the `TaskQueue` immediately when we call `OSInit`, but store the idle process when we found the `TaskQueue` is empty.
+2. you can crete no or two Task process see the change.
+
+> so you can image, if we found the process' dely is 0, we need to remove the idle process from the head of `OSTaskQueue`, that is our next step.
+
+
 
 

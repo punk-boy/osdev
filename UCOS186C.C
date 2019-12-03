@@ -73,10 +73,17 @@ UBYTE OSTaskCreate(void (far *task)(void *dptr), void  *data, void  *pstk, UBYTE
         // TODO: judge the queue is full, so that we can enqueue
         //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-        OSTQtail = (OSTQtail+1) % OS_ALL_TASK;
-        OSTaskQueue[OSTQtail] = p;
-
-        printf("in OSCreate : OSTQtail = %d, p = %d\n", OSTQtail, p);
+        if(p != 63)
+        {
+            OSTQtail = (OSTQtail+1) % OS_ALL_TASK;
+            OSTaskQueue[OSTQtail] = p;
+            printf("in OSCreate : OSTQtail = %d, p = %d\n", OSTQtail, p);
+        }
+        else
+        {
+            printf("Idle process is created !\n");
+        }
+        
 
 
         /*OSTCBList             = ptr;
