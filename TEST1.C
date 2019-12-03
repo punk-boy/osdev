@@ -38,10 +38,10 @@ void main(void)
     printf("OSTaskCreate start\n");
     OSTaskCreate(Task, (void *)&Data1, (void *)&Stk1[STK_SIZE], 1);
     OSTaskCreate(Task, (void *)&Data2, (void *)&Stk2[STK_SIZE], 2);
-    //OSTaskCreate(Task, (void *)&Data3, (void *)&Stk3[STK_SIZE], 3);
-    //OSTaskCreate(Task, (void *)&Data4, (void *)&Stk4[STK_SIZE], 4);
-    //OSTaskCreate(Task, (void *)&Data5, (void *)&Stk5[STK_SIZE], 5);
-    printf("OSTaskCreate end\n");
+    OSTaskCreate(Task, (void *)&Data3, (void *)&Stk3[STK_SIZE], 3);
+    OSTaskCreate(Task, (void *)&Data4, (void *)&Stk4[STK_SIZE], 4);
+    OSTaskCreate(Task, (void *)&Data5, (void *)&Stk5[STK_SIZE], 5);
+    printf("OSTaskCreate end *\n");
     getchar();
     OSStart();
 }
@@ -50,9 +50,10 @@ void far Task(void *data)
 {
     //setvect(0x08, (void interrupt (*)(void))OSTickISR);
     while (1) {
-        gotoxy(rand() % 79 + 1, rand() % 25 + 1);
-	    putch(*(char *)data);
-        printf("Task is called!\n");
+        //gotoxy(rand() % 79 + 1, rand() % 25 + 1);
+	    //putch(*(char *)data);
+        printf("Task %c is called!\n", *(char *)data);
+        getchar();
         //sleep(1);
         /*if (kbhit()) {
             setvect(0x08, OldTickISR);

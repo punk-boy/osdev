@@ -19,11 +19,11 @@ extern unsigned int OSTaskQueue[OS_ALL_TASK+1];
 //OS_TCB OSBlocQueue[OS_ALL_TASK+1];
 extern unsigned int OSBlocQueue[OS_ALL_TASK+1];
 
-extern unsigned int OSTQhead;
-extern unsigned int OSTQtail;
+extern int OSTQhead;
+extern int OSTQtail;
 
-extern unsigned int OSBQhead;
-extern unsigned int OSBQtail;
+extern int OSBQhead;
+extern int OSBQtail;
 
 /*
 ***********************************************************
@@ -69,12 +69,13 @@ UBYTE OSTaskCreate(void (far *task)(void *dptr), void  *data, void  *pstk, UBYTE
             OSTCBList->OSTCBPrev = ptr;
         }
 
-        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        // TODO: judge the queue is full, so that we can enqueue
-        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
         if(p != 63)
         {
+
+            //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            // TODO: judge the queue is full, so that we can enqueue
+            //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             OSTQtail = (OSTQtail+1) % OS_ALL_TASK;
             OSTaskQueue[OSTQtail] = p;
             printf("in OSCreate : OSTQtail = %d, p = %d\n", OSTQtail, p);
